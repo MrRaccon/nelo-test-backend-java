@@ -15,8 +15,8 @@
     <groupId>mx.com.test.nelo</groupId>
     <artifactId>nelo-test-backend-java</artifactId>
     <version>1.0.0</version>
-    <name>Nelo Test Backend Java</name>
-    <description>Prueba de arquitectura para Nelo</description>
+    <name>Nelo Restaurant Booking API</name>
+    <description>Social Restaurant Booking API for finding restaurants with dietary restrictions and making reservations</description>
     <packaging>jar</packaging>
 
     <properties>
