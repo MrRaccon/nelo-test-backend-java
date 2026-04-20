@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import mx.com.test.nelo.alexis.dto.RestaurantSearchBeanParam;
+import mx.com.test.nelo.alexis.dto.RestaurantSearchRequest;
 import mx.com.test.nelo.alexis.dto.RestaurantSearchResponse;
 import mx.com.test.nelo.alexis.service.RestaurantSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class RestaurantSearchController {
     @Autowired
     private RestaurantSearchService restaurantSearchService;
     
-    @GetMapping("/search")
+    @PostMapping("/search")
     @Operation(summary = "Search available restaurants", 
                description = "Find restaurants with available tables that match dietary restrictions")
     @ApiResponses(value = {
@@ -30,9 +30,9 @@ public class RestaurantSearchController {
         @ApiResponse(responseCode = "400", description = "Invalid search request")
     })
     public ResponseEntity<List<RestaurantSearchResponse>> searchRestaurants(
-            @Valid @ModelAttribute RestaurantSearchBeanParam searchParams) {
+            @Valid @RequestBody RestaurantSearchRequest searchRequest) {
         
-        List<RestaurantSearchResponse> results = restaurantSearchService.findAvailableRestaurants(searchParams);
+        List<RestaurantSearchResponse> results = restaurantSearchService.findAvailableRestaurants(searchRequest);
         return ResponseEntity.ok(results);
     }
 }

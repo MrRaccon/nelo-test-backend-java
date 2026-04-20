@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql-db:
+    image: mysql:8.0
+    container_name: nelo-mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: restaurantdb
+      MYSQL_USER: nelo_user
+      MYSQL_PASSWORD: nelo_password
+    ports:
+      - "4343:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - nelo-network
+
+  # Spring Boot Application
+  nelo-api:
+    build: .
+    container_name: nelo-api
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/restaurantdb
+      SPRING_DATASOURCE_USERNAME: nelo_user
+      SPRING_DATASOURCE_PASSWORD: nelo_password
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-db
+    networks:
+      - nelo-network
+
+volumes:
+  mysql_data:
+
+networks:
+  nelo-network:
+    driver: bridge

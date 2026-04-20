@@ -25,13 +25,13 @@ public class RestaurantSearchService {
     @Autowired
     private DietaryRestrictionRepository dietaryRestrictionRepository;
     
-    public List<RestaurantSearchResponse> findAvailableRestaurants(RestaurantSearchBeanParam searchParams) {
+    public List<RestaurantSearchResponse> findAvailableRestaurants(RestaurantSearchRequest searchRequest) {
         // Extract dietary restrictions from diners
-        Set<DietaryRestrictionType> requiredRestrictions = extractDietaryRestrictions(searchParams.getDiners());
+        Set<DietaryRestrictionType> requiredRestrictions = extractDietaryRestrictions(searchRequest.getDiners());
         
         // Get restaurants that are open and have required endorsements
         List<Restaurant> eligibleRestaurants = findEligibleRestaurants(
-            searchParams.getReservationTime().toLocalTime(), 
+            searchRequest.getReservationTime().toLocalTime(), 
             requiredRestrictions
         );
         
@@ -40,8 +40,8 @@ public class RestaurantSearchService {
         for (Restaurant restaurant : eligibleRestaurants) {
             List<TableCombinationDto> availableCombinations = findAvailableTableCombinations(
                 restaurant, 
-                searchParams.getPartySize(), 
-                searchParams.getReservationTime()
+                searchRequest.getPartySize(), 
+                searchRequest.getReservationTime()
             );
             
             if (!availableCombinations.isEmpty()) {
@@ -58,8 +58,9 @@ public class RestaurantSearchService {
     
     private Set<DietaryRestrictionType> extractDietaryRestrictions(List<DinerDto> diners) {
         return diners.stream()
+                .filter(diner -> diner.getDietaryRestrictions() != null)
                 .flatMap(diner -> diner.getDietaryRestrictions().stream())
-                .filter(restriction -> restriction != DietaryRestrictionType.NONE)
+                .filter(restriction -> restriction != null && restriction != DietaryRestrictionType.NONE)
                 .collect(Collectors.toSet());
     }
     

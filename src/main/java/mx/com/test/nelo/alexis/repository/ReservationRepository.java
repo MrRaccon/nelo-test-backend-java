@@ -12,30 +12,30 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     
-    @Query("SELECT r FROM Reservation r " +
-           "WHERE r.restaurant.id = :restaurantId " +
+    @Query(value = "SELECT * FROM reservations r " +
+           "WHERE r.restaurant_id = :restaurantId " +
            "AND ((" +
-           "  r.reservationTime <= :startTime AND r.reservationTime.plusHours(r.durationHours) > :startTime" +
+           "  r.reservation_time <= :startTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) > :startTime" +
            ") OR (" +
-           "  r.reservationTime < :endTime AND r.reservationTime.plusHours(r.durationHours) >= :endTime" +
+           "  r.reservation_time < :endTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) >= :endTime" +
            ") OR (" +
-           "  r.reservationTime >= :startTime AND r.reservationTime < :endTime" +
-           "))")
+           "  r.reservation_time >= :startTime AND r.reservation_time < :endTime" +
+           "))", nativeQuery = true)
     List<Reservation> findConflictingReservations(
             @Param("restaurantId") Long restaurantId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
     
-    @Query("SELECT r FROM Reservation r " +
-           "JOIN r.tables t " +
-           "WHERE t.id IN :tableIds " +
+    @Query(value = "SELECT DISTINCT r.* FROM reservations r " +
+           "JOIN reservation_tables rt ON r.id = rt.reservation_id " +
+           "WHERE rt.table_id IN :tableIds " +
            "AND ((" +
-           "  r.reservationTime <= :startTime AND r.reservationTime.plusHours(r.durationHours) > :startTime" +
+           "  r.reservation_time <= :startTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) > :startTime" +
            ") OR (" +
-           "  r.reservationTime < :endTime AND r.reservationTime.plusHours(r.durationHours) >= :endTime" +
+           "  r.reservation_time < :endTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) >= :endTime" +
            ") OR (" +
-           "  r.reservationTime >= :startTime AND r.reservationTime < :endTime" +
-           "))")
+           "  r.reservation_time >= :startTime AND r.reservation_time < :endTime" +
+           "))", nativeQuery = true)
     List<Reservation> findConflictingReservationsForTables(
             @Param("tableIds") List<Long> tableIds,
             @Param("startTime") LocalDateTime startTime,

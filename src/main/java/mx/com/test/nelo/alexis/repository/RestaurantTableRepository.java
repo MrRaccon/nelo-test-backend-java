@@ -12,41 +12,41 @@ import java.util.List;
 @Repository
 public interface RestaurantTableRepository extends JpaRepository<RestaurantTable, Long> {
     
-    @Query("SELECT t FROM RestaurantTable t " +
-           "WHERE t.restaurant.id = :restaurantId " +
+    @Query(value = "SELECT t.* FROM restaurant_tables t " +
+           "WHERE t.restaurant_id = :restaurantId " +
            "AND t.capacity >= :minCapacity " +
            "AND t.id NOT IN (" +
-           "  SELECT rt.id FROM Reservation r " +
-           "  JOIN r.tables rt " +
-           "  WHERE r.restaurant.id = :restaurantId " +
+           "  SELECT rt.table_id FROM reservation_tables rt " +
+           "  JOIN reservations r ON rt.reservation_id = r.id " +
+           "  WHERE r.restaurant_id = :restaurantId " +
            "  AND ((" +
-           "    r.reservationTime <= :startTime AND r.reservationTime.plusHours(r.durationHours) > :startTime" +
+           "    r.reservation_time <= :startTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) > :startTime" +
            "  ) OR (" +
-           "    r.reservationTime < :endTime AND r.reservationTime.plusHours(r.durationHours) >= :endTime" +
+           "    r.reservation_time < :endTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) >= :endTime" +
            "  ) OR (" +
-           "    r.reservationTime >= :startTime AND r.reservationTime < :endTime" +
+           "    r.reservation_time >= :startTime AND r.reservation_time < :endTime" +
            "  ))" +
-           ")")
+           ")", nativeQuery = true)
     List<RestaurantTable> findAvailableTables(
             @Param("restaurantId") Long restaurantId,
             @Param("minCapacity") Integer minCapacity,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
     
-    @Query("SELECT t FROM RestaurantTable t " +
-           "WHERE t.restaurant.id = :restaurantId " +
+    @Query(value = "SELECT t.* FROM restaurant_tables t " +
+           "WHERE t.restaurant_id = :restaurantId " +
            "AND t.id NOT IN (" +
-           "  SELECT rt.id FROM Reservation r " +
-           "  JOIN r.tables rt " +
-           "  WHERE r.restaurant.id = :restaurantId " +
+           "  SELECT rt.table_id FROM reservation_tables rt " +
+           "  JOIN reservations r ON rt.reservation_id = r.id " +
+           "  WHERE r.restaurant_id = :restaurantId " +
            "  AND ((" +
-           "    r.reservationTime <= :startTime AND r.reservationTime.plusHours(r.durationHours) > :startTime" +
+           "    r.reservation_time <= :startTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) > :startTime" +
            "  ) OR (" +
-           "    r.reservationTime < :endTime AND r.reservationTime.plusHours(r.durationHours) >= :endTime" +
+           "    r.reservation_time < :endTime AND DATE_ADD(r.reservation_time, INTERVAL r.duration_hours HOUR) >= :endTime" +
            "  ) OR (" +
-           "    r.reservationTime >= :startTime AND r.reservationTime < :endTime" +
+           "    r.reservation_time >= :startTime AND r.reservation_time < :endTime" +
            "  ))" +
-           ")")
+           ")", nativeQuery = true)
     List<RestaurantTable> findAllAvailableTables(
             @Param("restaurantId") Long restaurantId,
             @Param("startTime") LocalDateTime startTime,
